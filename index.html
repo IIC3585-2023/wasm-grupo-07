@@ -5,13 +5,13 @@
     <title>Asignación Óptima de Jobs a Clusters Computacionales</title>
     <script src="optimal-assignment.js"></script>
     <script>
-          var Module = {
+        var Module = {
             onRuntimeInitialized: function() {
                 console.log("El archivo wasm se ha cargado correctamente.");
             }
         };
         
-        function runOptimalAssignment() {
+        function findOptimalAssignment () {
             // Obtener los datos de entrada del formulario
             var N = parseInt(document.getElementById("numJobs").value);
             var jobs = document.getElementById("jobDurations").value.split(",").map(function(x){ return parseInt(x); });
@@ -19,10 +19,11 @@
 
             // Ejecutar la función findOptimalAssignment del archivo wasm
             console.log(Module)
-            var result = Module.ccall('findOptimalAssignment', // Nombre de la función
-                                      'number', // Tipo de retorno
-                                      ['number', 'array', 'number', 'array'], // Tipos de los argumentos
-                                      [N, jobs, M, new Array(N * M)]); // Valores de los argumentos
+            var js_wrapped = Module.cwrap('findOptimalAssignment', // Nombre de la función
+                                      'array', // Tipo de retorno
+                                      ['number', 'array', 'number', 'array'] // Tipos de los argumentos
+            )
+            var result = js_wrapped(N, jobs, M, new Array(N * M))
 
             // Mostrar el resultado en la página
             var outputDiv = document.getElementById("output");
@@ -42,7 +43,7 @@
         <input type="text" id="jobDurations" value="30,50,10,20,90"><br>
         <label for="numClusters">Número de clusters:</label>
         <input type="number" id="numClusters" value="2"><br>
-        <input type="button" value="Calcular asignación óptima" onclick="runOptimalAssignment()">
+        <input type="button" value="Calcular asignación óptima" onclick="findOptimalAssignment()">
     </form>
     <div id="output"></div>
 </body>

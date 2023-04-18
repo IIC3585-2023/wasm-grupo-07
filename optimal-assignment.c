@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <string.h>
+#include <emscripten.h>
 
+EMSCRIPTEN_KEEPALIVE
 int* findOptimalAssignment(int N, int *jobs, int M, int *result) {
     // Inicializar las variables
     int i, j, k, min_time, min_index;
