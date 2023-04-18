@@ -13,7 +13,7 @@ int* findOptimalAssignment(int N, int *jobs, int M, int *result) {
     memset(assigned, 0, N * sizeof(int));
 
     // Asignar los trabajos a los clusters restantes
-    for (i = 1; i < M; i++) {
+    for (i = 0; i < M; i++) {
         // Calcular los tiempos de ejecución para cada cluster
         for (j = 0; j < M; j++) {
             times[j] = 0;
@@ -37,8 +37,8 @@ int* findOptimalAssignment(int N, int *jobs, int M, int *result) {
         }
     }
 
+    // Devolver el array de tiempos
     return result;
-
     // Liberar la memoria
     free(times);
     free(assigned);

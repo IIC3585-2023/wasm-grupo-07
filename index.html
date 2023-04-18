@@ -1,50 +1,65 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8">
+  <head>
+    <meta charset="utf-8" />
     <title>Asignación Óptima de Jobs a Clusters Computacionales</title>
-    <script src="optimal-assignment.js"></script>
-    <script>
-        var Module = {
-            onRuntimeInitialized: function() {
-                console.log("El archivo wasm se ha cargado correctamente.");
-            }
-        };
-        
-        function findOptimalAssignment () {
-            // Obtener los datos de entrada del formulario
-            var N = parseInt(document.getElementById("numJobs").value);
-            var jobs = document.getElementById("jobDurations").value.split(",").map(function(x){ return parseInt(x); });
-            var M = parseInt(document.getElementById("numClusters").value);
-
-            // Ejecutar la función findOptimalAssignment del archivo wasm
-            console.log(Module)
-            var js_wrapped = Module.cwrap('findOptimalAssignment', // Nombre de la función
-                                      'array', // Tipo de retorno
-                                      ['number', 'array', 'number', 'array'] // Tipos de los argumentos
-            )
-            var result = js_wrapped(N, jobs, M, new Array(N * M))
-
-            // Mostrar el resultado en la página
-            var outputDiv = document.getElementById("output");
-            outputDiv.innerHTML = "";
-            for (var i = 0; i < M; i++) {
-                outputDiv.innerHTML += "<p>Cluster " + (i+1) + ": " + result.slice(i*N, (i+1)*N).join(", ") + "</p>";
-            }
-        }
-    </script>
-</head>
-<body>
+    <script src="script.js"></script>
+  </head>
+  <body>
     <h1>Asignación Óptima de Jobs a Clusters Computacionales</h1>
     <form>
-        <label for="numJobs">Número de trabajos:</label>
-        <input type="number" id="numJobs" value="5"><br>
-        <label for="jobDurations">Duración de cada trabajo (separado por comas):</label>
-        <input type="text" id="jobDurations" value="30,50,10,20,90"><br>
-        <label for="numClusters">Número de clusters:</label>
-        <input type="number" id="numClusters" value="2"><br>
-        <input type="button" value="Calcular asignación óptima" onclick="findOptimalAssignment()">
+      <label for="numJobs">Número de trabajos:</label>
+      <input type="number" id="numJobs" value="5" /><br />
+      <label for="jobDurations"
+        >Duración de cada trabajo (separado por comas):</label
+      >
+      <input type="text" id="jobDurations" value="30,50,10,20,90" /><br />
+      <label for="numClusters">Número de clusters:</label>
+      <input type="number" id="numClusters" value="2" /><br />
+      <input
+        type="button"
+        value="Calcular asignación óptima"
+        onclick="findOptimal()"
+      />
     </form>
     <div id="output"></div>
-</body>
+    <script>
+      function findOptimal() {
+        // Obtener los datos de entrada del formulario
+        var N = parseInt(document.getElementById('numJobs').value);
+        var jobs = document
+          .getElementById('jobDurations')
+          .value.split(',')
+          .map(function (x) {
+            return parseInt(x);
+          });
+        var M = parseInt(document.getElementById('numClusters').value);
+
+        console.log('Estos son los datos de entrada:', N, jobs, M);
+
+        if (!wasmExports) return;
+
+        const { findOptimalAssignment, memory } = wasmExports;
+
+        // Setear array
+        let offset = 0;
+        const outputArray = new Int32Array(memory.buffer, offset, N * M);
+
+        findOptimalAssignment(N, jobs, M, outputArray);
+
+        console.log(outputArray);
+        // Mostrar el resultado en la página
+        var outputDiv = document.getElementById('output');
+        outputDiv.innerHTML = '';
+        for (var i = 0; i < M; i++) {
+          outputDiv.innerHTML +=
+            '<p>Cluster ' +
+            (i + 1) +
+            ': ' +
+            outputArray.slice(i * N, (i + 1) * N).join(', ') +
+            '</p>';
+        }
+      }
+    </script>
+  </body>
 </html>
