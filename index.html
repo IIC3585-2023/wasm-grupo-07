@@ -3,7 +3,6 @@
   <head>
     <meta charset="utf-8" />
     <title>Asignación Óptima de Jobs a Clusters Computacionales</title>
-    <script src="script.js"></script>
   </head>
   <body>
     <h1>Asignación Óptima de Jobs a Clusters Computacionales</h1>
@@ -19,47 +18,11 @@
       <input
         type="button"
         value="Calcular asignación óptima"
-        onclick="findOptimal()"
+        id="execute_btn"
       />
     </form>
     <div id="output"></div>
-    <script>
-      function findOptimal() {
-        // Obtener los datos de entrada del formulario
-        var N = parseInt(document.getElementById('numJobs').value);
-        var jobs = document
-          .getElementById('jobDurations')
-          .value.split(',')
-          .map(function (x) {
-            return parseInt(x);
-          });
-        var M = parseInt(document.getElementById('numClusters').value);
-
-        console.log('Estos son los datos de entrada:', N, jobs, M);
-
-        if (!wasmExports) return;
-
-        const { findOptimalAssignment, memory } = wasmExports;
-
-        // Setear array
-        let offset = 0;
-        const outputArray = new Int32Array(memory.buffer, offset, N * M);
-
-        findOptimalAssignment(N, jobs, M, outputArray);
-
-        console.log(outputArray);
-        // Mostrar el resultado en la página
-        var outputDiv = document.getElementById('output');
-        outputDiv.innerHTML = '';
-        for (var i = 0; i < M; i++) {
-          outputDiv.innerHTML +=
-            '<p>Cluster ' +
-            (i + 1) +
-            ': ' +
-            outputArray.slice(i * N, (i + 1) * N).join(', ') +
-            '</p>';
-        }
-      }
-    </script>
   </body>
+  <script src="main.js"></script>
+  <script src="index.js"></script>
 </html>
