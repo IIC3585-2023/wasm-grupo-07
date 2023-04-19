@@ -1,43 +1,72 @@
+#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
-int* findOptimalAssignment(int N, int *jobs, int M, int *result) {
-    // Inicializar las variables
-    int i, j, k, min_time, min_index;
-    int *times = (int *) malloc(M * sizeof(int));
-    int *assigned = (int *) malloc(N * sizeof(int));
+#define MAX_N 100
+#define MAX_M 100
 
-    // Asignar todos los trabajos al primer cluster
-    memset(assigned, 0, N * sizeof(int));
+int cmp(const void *a, const void *b)
+{
+    return (int *)b - (int *)a; // ordenar en orden descendente
+}
 
-    // Asignar los trabajos a los clusters restantes
-    for (i = 0; i < M; i++) {
-        // Calcular los tiempos de ejecución para cada cluster
-        for (j = 0; j < M; j++) {
-            times[j] = 0;
-        }
-        for (j = 0; j < N; j++) {
-            min_time = times[0] + jobs[j];
-            min_index = 0;
-            for (k = 1; k < M; k++) {
-                if (times[k] + jobs[j] < min_time) {
-                    min_time = times[k] + jobs[j];
-                    min_index = k;
-                }
-            }
-            times[min_index] += jobs[j];
-            assigned[j] = min_index;
-        }
+int min(int a, int b)
+{
+    return a < b ? a : b;
+}
 
-        // Copiar los resultados en el array de salida
-        for (j = 0; j < N; j++) {
-            result[i * N + j] = assigned[j];
+int *task_assignment(int n, int jobs[], int m)
+{
+    int i, j, k, t;
+    int times[MAX_N];                // tiempos de ejecución de cada trabajo
+    int cluster_times[MAX_M];        // tiempos totales de ejecución de cada cluster
+    int assigned_jobs[MAX_M][MAX_N]; // trabajos asignados a cada cluster
+    int num_assigned_jobs[MAX_M];    // número de trabajos asignados a cada cluster
+    int *result = malloc(n * m * sizeof(int));
+
+    // copiar tiempos de trabajos en un array temporal
+    for (i = 0; i < n; i++)
+    {
+        times[i] = jobs[i];
+    }
+
+    qsort(times, n, sizeof(int), cmp); // ordenar tiempos
+
+    // inicializar tiempos de los clusters y trabajos asignados a cero
+    for (j = 0; j < m; j++)
+    {
+        cluster_times[j] = 0;
+        num_assigned_jobs[j] = 0;
+        for (i = 0; i < n; i++)
+        {
+            assigned_jobs[j][i] = 0;
         }
     }
 
-    // Devolver el array de tiempos
+    // asignar trabajos a clusters
+    for (i = 0; i < n; i++)
+    {
+        // encontrar cluster con tiempo mínimo actual
+        j = 0;
+        for (k = 1; k < m; k++)
+        {
+            if (cluster_times[k] < cluster_times[j])
+            {
+                j = k;
+            }
+        }
+        // asignar trabajo a cluster y actualizar tiempo total
+        assigned_jobs[j][num_assigned_jobs[j]] = times[i];
+        num_assigned_jobs[j]++;
+        cluster_times[j] += times[i];
+    }
+
+    // copiar tiempos de trabajos asignados a cada cluster en array result
+    for (j = 0; j < m; j++)
+    {
+        for (i = 0; i < n; i++)
+        {
+            result[j * n + i] = assigned_jobs[j][i];
+        }
+    }
     return result;
-    // Liberar la memoria
-    free(times);
-    free(assigned);
 }
