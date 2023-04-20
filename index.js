@@ -15,32 +15,21 @@ Module.onRuntimeInitialized = () => {
             .map(function (x) {
                 return parseInt(x);
             });
-            var M = parseInt(document.getElementById('numClusters').value);
+        var M = parseInt(document.getElementById('numClusters').value);
             
             console.log('Estos son los datos de entrada:', N, jobs, M);
-            
-            // Setear array
-        let offset = 0;
-        const buffer = new ArrayBuffer(256 )
-        const outputArray = new Int32Array(buffer, offset, N * M);
-        
-        // findOptimalAssignment = Module.cwrap('findOptimalAssignment', 'number', ['number', 'array', 'number', 'array']);
-        console.log('entro')
-        
-        const result = Module.ccall("task_assignment", "number",
+
+        const ptr = Module.ccall("task_assignment", "number",
         ["number", "array", "number"],
         [N, jobs, M]);
 
-        // const result = findOptimalAssignment(N, jobs, M, outputArray);
+        const js_array = Module.HEAP32.subarray(ptr / 4, ptr / 4 + N)
 
-        var js_array = Module.HEAPU8.subarray(result, result + N*M);
         console.log(js_array);
 
         // findOptimalAssignment(N, jobs, M, outputArray.byteOffset);
         // console.log(`[${outputArray.join(", ")}]`);
         
-        console.log(outputArray)
-        console.log(result);
 
         // Mostrar el resultado en la página
         var outputDiv = document.getElementById('output');
