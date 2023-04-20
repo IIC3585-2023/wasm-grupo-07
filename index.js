@@ -1,7 +1,7 @@
 
 // Wait for WASM compilation.
 Module.onRuntimeInitialized = () => {
-    const { findOptimalAssignment } = Module;
+    const { task_assignment } = Module;
   
     //------//
     // WASM //
@@ -17,16 +17,23 @@ Module.onRuntimeInitialized = () => {
             });
         var M = parseInt(document.getElementById('numClusters').value);
             
-            console.log('Estos son los datos de entrada:', N, jobs, M);
+        console.log('Estos son los datos de entrada:', N, jobs, M);
+        
+        const jobsPtr = Module._malloc(N * 4);  // 4 bytes por cada elemento (entero de 32 bits)
+        Module.HEAP32.set(jobs, jobsPtr / 4);
 
-        const ptr = Module.ccall("task_assignment", "number",
-        ["number", "array", "number"],
-        [N, jobs, M]);
+        const clustersPtr = Module.ccall("task_assignment", "number",
+        ["number", "number", "number"],
+        [N, jobsPtr, M]);
 
-        const js_array = Module.HEAP32.subarray(ptr / 4, ptr / 4 + N)
+        const clusters = Module.HEAP32.subarray(clustersPtr / 4, clustersPtr / 4 + N*M);
+        
+        // Liberar la memoria reservada para `t` y `clusters`
+        Module._free(jobsPtr);
+        Module._free(clustersPtr);
 
-        console.log(js_array);
-
+        console.log(clusters);
+        
         // findOptimalAssignment(N, jobs, M, outputArray.byteOffset);
         // console.log(`[${outputArray.join(", ")}]`);
         
@@ -39,7 +46,7 @@ Module.onRuntimeInitialized = () => {
             '<p>Cluster ' +
             (i + 1) +
             ': ' +
-            js_array.slice(i * N, (i + 1) * N).join(', ') +
+            clusters.slice(i * N, (i + 1) * N).join(', ') +
             '</p>';
         }
     }
