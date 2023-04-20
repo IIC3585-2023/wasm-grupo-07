@@ -4,7 +4,7 @@
 
 2   Compilar el código en C a WebAssembly generando el codigo Javascritp de unión usando el siguiente comando en la terminal:
 
-    emcc -O3 -s EXPORTED_FUNCTIONS=_task_assignment,_malloc,_free -s EXPORTED_RUNTIME_METHODS=ccall -o main.js algoritmo2.c
+    emcc -O3 -s EXPORTED_FUNCTIONS=_task_assignment,_task_assignment2,_malloc,_free -s EXPORTED_RUNTIME_METHODS=ccall -o main.js main.c
 
 "-O3": habilita la optimización de nivel 3.
 "-s EXPORTED_RUNTIME_METHODS=ccall: exporta el método "ccall" de Emscripten, que permiten llamar a funciones C desde JavaScript. Dónde:
