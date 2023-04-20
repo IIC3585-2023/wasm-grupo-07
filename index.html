@@ -8,8 +8,6 @@
   <body>
     <h1>Asignación Óptima de Jobs a Clusters Computacionales</h1>
     <form>
-      <label for="numJobs">Número de trabajos:</label>
-      <input type="number" id="numJobs" value="5" /><br />
       <label for="jobDurations"
         >Duración de cada trabajo (separado por comas):</label
       >
@@ -18,16 +16,12 @@
       <input type="number" id="numClusters" value="2" /><br />
       <input
         type="button"
-        value="Calcular asignación óptima (Wasm)"
-        id="execute_wasm_btn"
-      />
-      <input
-        type="button"
-        value="Calcular asignación óptima (JS)"
-        id="execute_js_btn"
+        value="Calcular asignación óptima"
+        id="execute_btn"
       />
     </form>
-    <div id="output"></div>
+    <div id="output_WASM"></div>
+    <div id="output_JS"></div>
     <div class="container"></div>
   </body>
   <script src="main.js"></script>
