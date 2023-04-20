@@ -6,23 +6,30 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <h1>Asignación Óptima de Jobs a Clusters Computacionales</h1>
-    <form>
-      <label for="jobDurations"
-        >Duración de cada trabajo (separado por comas):</label
-      >
-      <input type="text" id="jobDurations" value="30,50,10,20,90" /><br />
-      <label for="numClusters">Número de clusters:</label>
-      <input type="number" id="numClusters" value="2" /><br />
-      <input
-        type="button"
-        value="Calcular asignación óptima"
-        id="execute_btn"
-      />
-    </form>
+    <header>
+      <h1>Asignación Óptima de Jobs a Clusters Computacionales 🖫</h1>
+    </header>
+    <div class="form_container">
+      <form class="form">
+        <div class="form_section">
+          <label for="jobDurations">Tiempo por trabajo 🛠️</label>
+          <input type="text" id="jobDurations" value="30,50,10,20,90" />
+        </div>
+        <div class="form_section">
+          <label for="numClusters">N° Clusters 👷‍♂️</label>
+          <input type="number" id="numClusters" value="2" />
+        </div>
+        <input
+          type="button"
+          value="Calcular asignación óptima"
+          id="execute_btn"
+        />
+      </form>
+    </div>
     <div id="output_WASM"></div>
     <div id="output_JS"></div>
-    <div class="container"></div>
+    <div class="container wasmAlg"></div>
+    <div class="container javascriptAlg"></div>
   </body>
   <script src="main.js"></script>
   <script src="index.js"></script>

@@ -4,17 +4,16 @@ const INY_BYTES = 4; //4 bytes por cada elemento (entero de 32 bits)
 // Utilidades //
 //------//
 function setOutputHtml(clusters, time, section) {
-    // Mostrar el resultado en la página
-    var outputDiv = document.getElementById('output_'+section);
-    outputDiv.innerHTML = '';
-    outputDiv.innerHTML += '<h3>' + section + '</h3>';
-    outputDiv.innerHTML += '<h4> Time:' + time + '</h4>';
-    let n_job = 1;
-    for (const cluster of clusters) {
-        outputDiv.innerHTML +=
-        '<p> Trabajo ' + n_job + ': ' + cluster + '</p>';
-        n_job ++;
-    }
+  // Mostrar el resultado en la página
+  var outputDiv = document.getElementById('output_' + section);
+  outputDiv.innerHTML = '';
+  outputDiv.innerHTML += '<h3>' + section + '</h3>';
+  outputDiv.innerHTML += '<h4> Time:' + time + '</h4>';
+  let n_job = 1;
+  for (const cluster of clusters) {
+    outputDiv.innerHTML += '<p> Trabajo ' + n_job + ': ' + cluster + '</p>';
+    n_job++;
+  }
 }
 
 function getData() {
@@ -25,11 +24,10 @@ function getData() {
     .map(function (x) {
       return parseInt(x);
     });
-  var N  = jobs.length
+  var N = jobs.length;
   var M = parseInt(document.getElementById('numClusters').value);
   return [N, jobs, M];
 }
-
 
 //------//
 // WORKERS //
@@ -37,17 +35,18 @@ function getData() {
 let progressStartValue = 0,
   progressEndValue = 100;
 
-const createRace = (N, jobs, M, workDistribution) => {
-  setUpWorkersInHtml(M);
-  const workers = createWorkers(M);
-  fillUpJobs(workers, jobs, workDistribution);
-  startProgress(workers);
+const createRace = (N, jobs, M, workDistribution, exec_time, source) => {
+  setUpWorkersInHtml(M, source);
+  const workersObj = {};
+  createWorkers(M, workersObj, source);
+  fillUpJobs(jobs, workersObj, workDistribution, source, exec_time);
+  startProgress(workersObj, source);
 };
 
-const setUpWorkersInHtml = (M) => {
-  const container = document.querySelector('.container'); // select the container element
+const setUpWorkersInHtml = (M, source) => {
+  const container = document.querySelector(`.${source}`); // select the container element
 
-  for (let i = 0; i < M; i++) {
+  for (let i = -1; i < M; i++) {
     // create the worker div element
     const workerDiv = document.createElement('div');
     workerDiv.classList.add('worker');
@@ -55,12 +54,12 @@ const setUpWorkersInHtml = (M) => {
     // create the circular-progress div element
     const progressDiv = document.createElement('div');
     progressDiv.classList.add('circular-progress');
-    progressDiv.id = `progress-worker-${i}`;
+    progressDiv.id = `progress-${source}-worker-${i}`;
 
     // create the progress-value span element
     const valueSpan = document.createElement('span');
     valueSpan.classList.add('progress-value');
-    valueSpan.id = `worker-${i}`;
+    valueSpan.id = `${source}-worker-${i}`;
     valueSpan.textContent = '0%';
 
     // append the progress-value span element to the circular-progress div element
@@ -69,7 +68,8 @@ const setUpWorkersInHtml = (M) => {
     // create the text span element
     const textSpan = document.createElement('span');
     textSpan.classList.add('text');
-    textSpan.textContent = `Cluster ${i + 1}`;
+    if (i == -1) textSpan.textContent = 'Procesamiento';
+    else textSpan.textContent = `Cluster ${i + 1}`;
 
     // append the circular-progress and text span elements to the worker div element
     workerDiv.appendChild(progressDiv);
@@ -80,88 +80,106 @@ const setUpWorkersInHtml = (M) => {
   }
 };
 
-const createWorkers = (M) => {
+const createWorkers = (M, workersObj, source) => {
   workers = [];
-  for (let i = 0; i < M; i++) {
+  for (let i = -1; i < M; i++) {
     workers.push({
       id: `Worker ${i}`,
       jobs: [],
       progress: 0,
     });
   }
-  return workers;
+  workersObj[source] = workers;
 };
 
-const fillUpJobs = (workers, jobsToDo, workDistribution) => {
+const fillUpJobs = (
+  jobsToDo,
+  workersObj,
+  workDistribution,
+  source,
+  exec_time
+) => {
+  console.log('EXEC TIME: ', exec_time, 's');
+  workersObj[source][0].jobs.push(exec_time);
   for (let i = 0; i < jobsToDo.length; i++) {
-    workers[workDistribution[i] - 1].jobs.push(jobsToDo[i]);
-    console.log(workers);
+    workersObj[source][workDistribution[i]].jobs.push(jobsToDo[i]);
   }
 };
 
-const startProgress = (workers) => {
-  workers.forEach((worker, index) => {
-    let workerId = index;
+const startProgress = (workersObj, source) => {
+  workersObj[source].forEach((worker, index) => {
+    let workerId = index - 1;
     let speed = worker.jobs[0] * 10;
-    initJob(workerId, speed);
+    initJob(workersObj, workerId, speed, source);
   });
 };
 
-const activateJob = (workerId) => {
+const activateJob = (workersObj, workerId, source) => {
   let circularProgressWorker = document.querySelector(
-    `#progress-worker-${workerId}`
+    `#progress-${source}-worker-${workerId}`
   );
-  let progressWorkerValue = document.querySelector(`#worker-${workerId}`);
-  progressWorkerValue.textContent = `${workers[workerId].jobs[0]}s`;
+  let progressWorkerValue = document.querySelector(
+    `#${source}-worker-${workerId}`
+  );
+  let messureUnit = 's';
+  if (workerId == -1) messureUnit = 'ms';
+  progressWorkerValue.textContent = `${
+    workersObj[source][workerId + 1].jobs[0]
+  }${messureUnit}`;
   circularProgressWorker.style.background = `conic-gradient(#7d2ae8 ${
-    workers[workerId].progress * 3.6
+    workersObj[source][workerId + 1].progress * 3.6
   }deg, #ededed 0deg)`;
 
-  if (workers[workerId].progress == progressEndValue) return true;
+  if (workersObj[source][workerId + 1].progress == progressEndValue)
+    return true;
   return false;
 };
 
-const initJob = (workerId, speed) => {
+const initJob = (workersObj, workerId, speed, source) => {
   let timer = setInterval(() => {
-    const isFinished = activateJob(workerId);
-    workers[workerId].progress++;
+    const isFinished = activateJob(workersObj, workerId, source);
+    workersObj[source][workerId + 1].progress++;
     if (isFinished) {
       clearInterval(timer);
-      if (workers[workerId].jobs.length > 1) {
-        workers[workerId].progress = 0;
-        workers[workerId].jobs.shift();
-        speed = workers[workerId].jobs[0] * 10;
-        initJob(workerId, speed);
+      if (workers[workerId + 1].jobs.length > 1) {
+        workersObj[source][workerId + 1].progress = 0;
+        workersObj[source][workerId + 1].jobs.shift();
+        speed = workersObj[source][workerId + 1].jobs[0] * 10;
+        initJob(workersObj, workerId, speed, source);
       } else {
-        finished(workerId);
+        finished(workerId, source);
       }
     }
   }, speed);
 };
 
-const finished = (workerId) => {
-  let progressWorker = document.querySelector(`#worker-${workerId}`);
-  progressWorker.textContent = 'Finished';
+const finished = (workerId, source) => {
+  let progressWorker = document.querySelector(`#${source}-worker-${workerId}`);
+  if (workerId != -1) progressWorker.textContent = 'Finished';
 };
-
-
 
 // Wait for WASM compilation.
 Module.onRuntimeInitialized = () => {
   document.getElementById('execute_btn').onclick = () => {
-
     //JS//
+    const workers = document.querySelectorAll('.worker');
+    workers.forEach((worker) => {
+      worker.remove();
+    });
+
     [N, jobs, M] = getData();
-     const tjs0 = Date.now();   
+    const tjs0 = performance.now();
     // const clusters = taskAssignment(N, jobs, M)
     const clustersJS = taskAssignment2(N, jobs, M);
-    const tjs1 = Date.now();
+    const tjs1 = performance.now();
+    const exec_js_time = (tjs1 - tjs0).toFixed(4);
     console.log(clustersJS);
-    setOutputHtml(clustersJS, (tjs1 - tjs0) / 1000, 'JS');
 
-    
+    createRace(N, jobs, M, clustersJS, exec_js_time, 'javascriptAlg');
+    // setOutputHtml(clustersJS, tjs1 - tjs0, 'JS');
+
     // WASM //
-    const twasm0 = Date.now();
+
     console.log('Estos son los datos de entrada:', N, jobs, M);
 
     const jobsPtr = Module._malloc(N * INY_BYTES);
@@ -171,12 +189,14 @@ Module.onRuntimeInitialized = () => {
     // ["number", "number", "number"],
     // [N, jobsPtr, M]);
 
+    const twasm0 = performance.now();
     const clustersPtr = Module.ccall(
       'task_assignment2',
       'number',
       ['number', 'number', 'number'],
       [N, jobsPtr, M]
     );
+    const twasm1 = performance.now();
 
     const clustersWasm = Module.HEAP32.subarray(
       clustersPtr / INY_BYTES,
@@ -186,14 +206,12 @@ Module.onRuntimeInitialized = () => {
     // Liberar la memoria reservada para `t` y `clusters`
     Module._free(jobsPtr);
     Module._free(clustersPtr);
-    const twasm1 = Date.now();
 
     console.log(clustersWasm);
-
+    const exec_time = (twasm1 - twasm0).toFixed(4);
     // Aca se guarda en el html
-    createRace(N, jobs, M, clustersWasm);
-    setOutputHtml(clustersWasm, (twasm1 - twasm0) / 1000, 'WASM');
-    
+    createRace(N, jobs, M, clustersWasm, exec_time, 'wasmAlg');
+    // setOutputHtml(clustersWasm, twasm1 - twasm0, 'WASM');
   };
 };
 
@@ -307,4 +325,3 @@ function taskAssignment2(N, Ti, M) {
 
   return assignmentList;
 }
-

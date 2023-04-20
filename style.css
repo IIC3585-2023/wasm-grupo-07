@@ -12,11 +12,73 @@ body {
   height: 100vh;
   display: flex;
   flex-direction: column;
+  background-color: #f4f4f4;
+}
+
+header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 6rem;
+  background-color: #ffffff;
+  box-shadow: 0 4px 2px -2px gray;
+}
+
+.form_container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.form {
+  margin: 2rem 2rem 0 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 30rem;
+  border: 1px solid grey;
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.form_section {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100%;
+  padding: 1rem;
+}
+
+.form_section label {
+  width: 14rem;
+  text-align: right;
+  padding: 0 1rem 0 1rem;
+  background-color: #a3a3a34f;
+  border-top-left-radius: 0.5rem;
+  border-bottom-left-radius: 0.5rem;
+}
+
+.form_section input {
+  padding-left: 1rem;
+  border: none;
+  border-top-right-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+}
+
+#execute_btn {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem 0.5rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  background-color: #7d2ae8;
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .container {
   display: flex;
-  background: #fff;
   width: 100%;
   align-items: center;
   justify-content: space-around;
@@ -27,13 +89,13 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 5rem;
+  padding: 2rem;
 }
 
 .circular-progress {
   position: relative;
-  height: 250px;
-  width: 250px;
+  height: 100px;
+  width: 100px;
   border-radius: 50%;
   background: conic-gradient(#7d2ae8 3.6deg, #ededed 0deg);
   display: flex;
@@ -44,19 +106,19 @@ body {
 .circular-progress::before {
   content: '';
   position: absolute;
-  height: 210px;
-  width: 210px;
+  height: 70px;
+  width: 70px;
   border-radius: 50%;
   background-color: #fff;
 }
 .progress-value {
   position: relative;
-  font-size: 40px;
+  font-size: 10px;
   font-weight: 600;
   color: #7d2ae8;
 }
 .text {
-  font-size: 30px;
+  font-size: 15px;
   font-weight: 500;
   color: #606060;
 }
