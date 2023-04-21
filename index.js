@@ -34,19 +34,25 @@ function getData() {
 //------//
 let progressStartValue = 0,
   progressEndValue = 100;
+workersObj = {};
 
 const createRace = (N, jobs, M, workDistribution, exec_time, source) => {
   setUpWorkersInHtml(M, source);
-  const workersObj = {};
-  createWorkers(M, workersObj, source);
-  fillUpJobs(jobs, workersObj, workDistribution, source, exec_time);
-  startProgress(workersObj, source);
+  createWorkers(M, source);
+  fillUpJobs(jobs, workDistribution, source, exec_time);
+  startProgress(source, exec_time);
 };
 
 const setUpWorkersInHtml = (M, source) => {
   const container = document.querySelector(`.${source}`); // select the container element
 
+  const h2 = document.createElement('h2');
+  h2.textContent = source.slice(0, -3).toUpperCase();
+  container.appendChild(h2);
+
   for (let i = -1; i < M; i++) {
+    //Create h1 element
+
     // create the worker div element
     const workerDiv = document.createElement('div');
     workerDiv.classList.add('worker');
@@ -80,8 +86,8 @@ const setUpWorkersInHtml = (M, source) => {
   }
 };
 
-const createWorkers = (M, workersObj, source) => {
-  workers = [];
+const createWorkers = (M, source) => {
+  let workers = [];
   for (let i = -1; i < M; i++) {
     workers.push({
       id: `Worker ${i}`,
@@ -89,32 +95,27 @@ const createWorkers = (M, workersObj, source) => {
       progress: 0,
     });
   }
-  workersObj[source] = workers;
+  const element = source;
+  console.log(workers);
+  workersObj[element] = workers;
 };
 
-const fillUpJobs = (
-  jobsToDo,
-  workersObj,
-  workDistribution,
-  source,
-  exec_time
-) => {
-  console.log('EXEC TIME: ', exec_time, 's');
+const fillUpJobs = (jobsToDo, workDistribution, source, exec_time) => {
   workersObj[source][0].jobs.push(exec_time);
   for (let i = 0; i < jobsToDo.length; i++) {
     workersObj[source][workDistribution[i]].jobs.push(jobsToDo[i]);
   }
 };
 
-const startProgress = (workersObj, source) => {
+const startProgress = (source, exec_time) => {
   workersObj[source].forEach((worker, index) => {
     let workerId = index - 1;
     let speed = worker.jobs[0] * 10;
-    initJob(workersObj, workerId, speed, source);
+    initJob(workerId, speed, source, exec_time);
   });
 };
 
-const activateJob = (workersObj, workerId, source) => {
+const activateJob = (workerId, source) => {
   let circularProgressWorker = document.querySelector(
     `#progress-${source}-worker-${workerId}`
   );
@@ -135,17 +136,22 @@ const activateJob = (workersObj, workerId, source) => {
   return false;
 };
 
-const initJob = (workersObj, workerId, speed, source) => {
+const initJob = async (workerId, speed, source, sleepTime = 0) => {
+  if (workerId !== -1) {
+    console.log('Estoy durmiendo');
+    await sleep(sleepTime * 1000);
+  }
+  console.log('Desperté');
   let timer = setInterval(() => {
-    const isFinished = activateJob(workersObj, workerId, source);
+    const isFinished = activateJob(workerId, source);
     workersObj[source][workerId + 1].progress++;
     if (isFinished) {
       clearInterval(timer);
-      if (workers[workerId + 1].jobs.length > 1) {
+      if (workersObj[source][workerId + 1].jobs.length > 1) {
         workersObj[source][workerId + 1].progress = 0;
         workersObj[source][workerId + 1].jobs.shift();
         speed = workersObj[source][workerId + 1].jobs[0] * 10;
-        initJob(workersObj, workerId, speed, source);
+        initJob(workerId, speed, source);
       } else {
         finished(workerId, source);
       }
@@ -163,6 +169,10 @@ Module.onRuntimeInitialized = () => {
   document.getElementById('execute_btn').onclick = () => {
     //JS//
     const workers = document.querySelectorAll('.worker');
+    const h2 = document.querySelectorAll('h2');
+    h2.forEach((h2) => {
+      h2.remove();
+    });
     workers.forEach((worker) => {
       worker.remove();
     });
@@ -325,3 +335,7 @@ function taskAssignment2(N, Ti, M) {
 
   return assignmentList;
 }
+
+const sleep = (milliseconds) => {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+};
