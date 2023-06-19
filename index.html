@@ -4,8 +4,98 @@
     <meta charset="utf-8" />
     <title>Asignación Óptima de Jobs a Clusters Computacionales</title>
     <link rel="stylesheet" href="style.css" />
+    <style>
+  
+      .tree{
+        position: fixed;
+        top: 70px;
+        right: 50px;
+        z-index: 9999;
+        background-color: white;
+        border-radius: 5%;
+        padding-right: 20px;
+        box-shadow: 0 0 0.5rem 0.1rem rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+      }
+  
+      .tree:hover{
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.2);
+      }
+    </style>
   </head>
   <body>
+    <div class="tree">
+      <tree-item>
+        Lenguajes de Programación
+        <tree-item>
+          Paradigma Orientado a Objetos
+          <tree-item>
+            Lenguajes Compilados
+            <tree-item>
+              Lenguajes Estáticamente Tipados
+              <tree-item>
+                C++
+              </tree-item>
+              <tree-item>
+                Java
+              </tree-item>
+            </tree-item>
+            <tree-item>
+              Lenguajes Dinámicamente Tipados
+              <tree-item>
+                Python
+              </tree-item>
+              <tree-item>
+                Ruby
+              </tree-item>
+            </tree-item>
+          </tree-item>
+          <tree-item>
+            Lenguajes Interpretados
+            <tree-item>
+              Lenguajes de Scripting
+              <tree-item>
+                JavaScript
+              </tree-item>
+              <tree-item>
+                Perl
+              </tree-item>
+            </tree-item>
+            <tree-item>
+              Lenguajes Visuales
+              <tree-item>
+                Visual Basic
+              </tree-item>
+              <tree-item>
+                Delphi
+              </tree-item>
+            </tree-item>
+          </tree-item>
+        </tree-item>
+        <tree-item>
+          Paradigma Funcional
+          <tree-item>
+            Lenguajes Funcionales Puros
+            <tree-item>
+              Haskell
+            </tree-item>
+            <tree-item>
+              Lisp
+            </tree-item>
+          </tree-item>
+          <tree-item>
+            Lenguajes Funcionales con Efectos
+            <tree-item>
+              Scala
+            </tree-item>
+            <tree-item>
+              F#
+            </tree-item>
+          </tree-item>
+        </tree-item>
+      </tree-item>     
+    </div>
     <h1>Asignación Óptima de Jobs a Clusters Computacionales</h1>
     <form>
       <label for="jobDurations"
@@ -26,4 +116,5 @@
   </body>
   <script src="main.js"></script>
   <script src="index.js"></script>
+  <script type="module" src="http://127.0.0.1:5173/src/treeItem.js"></script>
 </html>
